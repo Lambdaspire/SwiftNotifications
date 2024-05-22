@@ -115,7 +115,7 @@ let employees = employeeDatabase.getMySubordinates()
 
 await employees.forEach { employee in
 
-    notificationService
+    await notificationService
         .requestNotification(.init(
             identifier: .init(),
             date: thisAfternoon,
@@ -146,9 +146,17 @@ await employees.forEach { employee in
 }
 ```
 
+## Done.
+
+That's all.
+
 ---
 
 ## Appendix
+
+### Push Notifications App Entitlement
+
+Shouldn't be s surprise that you'll need to include the **Push Notifications** entitlement for your app target.
 
 ### Registering Dependencies
 
