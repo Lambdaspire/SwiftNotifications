@@ -24,7 +24,7 @@ Users respond to notifications via actions (see the [Actionable Notifications Do
 Below are some contrived examples.
 
 ```swift
-struct EmployeePerformanceReviewRequestData {
+struct EmployeePerformanceReviewRequestData : NotificationRequestData {
     var employeeName: String
 }
 
