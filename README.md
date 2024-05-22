@@ -86,6 +86,14 @@ struct WrittenNoteHandler : NotificationActionHandler {
 
 ## 3. Start listening for Notification Responses.
 
+You'll need to register your handlers with the `NotificationService` instance. Ideally you'd do this in the same place where you declare the service.
+
+```swift
+notificationService.register(handler: DefaultHandler.self)
+notificationService.register(handler: PerformanceRatingHandler.self)
+notificationService.register(handler: WrittenNoteHandler.self)
+```
+
 The `NotificationService` has a couple of convenience functions on it which hide some `UserNotifications` framework implementation details.
 
 Where you would normally do something like:
@@ -105,6 +113,12 @@ notificationService.becomeMainNotificationResponder()
 You should do this as soon as possible in the app lifecycle. Ideally, you'd do it in the same location you declare your `NotificationService`.
 
 As long as the `notificationService` remains alive, it will receive notification responses via the `userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async` function on the `UNUserNotificationCenterDelegate` protocol and usher those responses through to your handlers.
+
+Another convenience function will request permission from the user for your app to send notifications. It is a very naive implementation of `requestAuthorization(options: UNAuthorizationOptions = [])` on `UNUserNotificationCenter`.
+
+```swift
+await notificationService.requestPermission()
+```
 
 ## 4. Schedule some Notifications
 
