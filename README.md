@@ -58,7 +58,7 @@ struct PerformanceRatingHandler : NotificationActionHandler {
             // so update the database accordingly.
             await resolver
                 .resolve(EmployeeDatabase.self)!
-                .saveReview(employeeName: requestData.employeeName, rating: requestData.rating)
+                .saveReview(employeeName: requestData.employeeName, rating: actionIdentifierData.rating)
         }
 }
 
