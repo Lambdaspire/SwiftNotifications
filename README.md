@@ -132,7 +132,7 @@ await employees.forEach { employee in
                     requiresForeground: false),
                 .button(
                     identifier: PerformanceRatingActionIdentifier(rating: "Bad"),
-                    title: "Bad",,
+                    title: "Bad",
                     icon: "hand.thumbsdown.fill",
                     requiresForeground: false),
                 .userInput(
