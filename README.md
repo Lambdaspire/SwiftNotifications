@@ -114,7 +114,7 @@ You should do this as soon as possible in the app lifecycle. Ideally, you'd do i
 
 As long as the `notificationService` remains alive, it will receive notification responses via the `userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async` function on the `UNUserNotificationCenterDelegate` protocol and usher those responses through to your handlers.
 
-Another convenience function will request permission from the user for your app to send notifications. It is a very naive implementation of `requestAuthorization(options: UNAuthorizationOptions = [])` on `UNUserNotificationCenter`.
+Another convenience function will request permission from the user for your app to send notifications. It is a very naive implementation of `requestAuthorization(options: UNAuthorizationOptions = [])` on `UNUserNotificationCenter`. Put this wherever makes sense in your app lifecycle, but - obviously - before you schedule notifications.
 
 ```swift
 await notificationService.requestPermission()
