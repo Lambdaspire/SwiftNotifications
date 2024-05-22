@@ -8,6 +8,10 @@ Feel free to submit a Pull Request.
 
 ## Usage
 
+[There is a minimalist example project.](https://github.com/Lambdaspire/SwiftNotifications-Example)
+
+Otherwise, (hopefully exhaustive) steps are outlined below.
+
 ### 1. Create the Notification Service.
 
 `NotificationService` is the main driver. It requires a `DependencyResolver` and a `Logger` (there are default implementations of both available).
