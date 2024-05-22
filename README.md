@@ -43,9 +43,13 @@ struct DefaultHandler : NotificationActionHandler {
         }
 }
 
+struct PerformanceRatingActionIdentifier : NotificationActionIdentifier {
+    var rating: String
+}
+
 struct PerformanceRatingHandler : NotificationActionHandler {
     static func handle(
-        _ actionIdentifierData: DefaultNotificationActionIdentifier,
+        _ actionIdentifierData: PerformanceRatingActionIdentifier,
         _ requestData: EmployeePerformanceReviewRequestData,
         _ userInput: UserInput,
         _ resolver: DependencyResolver) async {
@@ -58,9 +62,13 @@ struct PerformanceRatingHandler : NotificationActionHandler {
         }
 }
 
+struct WrittenNoteActionIdentifier : NotificationActionIdentifier {
+    // Empty - use UserInput instead.
+}
+
 struct WrittenNoteHandler : NotificationActionHandler {
     static func handle(
-        _ actionIdentifierData: DefaultNotificationActionIdentifier,
+        _ actionIdentifierData: WrittenNoteActionIdentifier,
         _ requestData: EmployeePerformanceReviewRequestData,
         _ userInput: UserInput,
         _ resolver: DependencyResolver) async {
@@ -83,13 +91,59 @@ The `NotificationService` has a couple of convenience functions on it which hide
 Where you would normally do something like:
 
 ```swift
+// ❌
 UNUserNotificationCenter.current().delegate = /* SOME DELEGATE IMPLEMENTATION */
 ```
 
 You will instead do this:
 
 ```swift
+// ✅
 notificationService.becomeMainNotificationResponder()
+```
+
+You should do this as soon as possible in the app lifecycle. Ideally, you'd do it in the same location you declare your `NotificationService`.
+
+As long as the `notificationService` remains alive, it will receive notification responses via the `userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async` function on the `UNUserNotificationCenterDelegate` protocol and usher those responses through to your handlers.
+
+## 4. Schedule some Notifications
+
+The examples so far are for some kind of Employee Performance Review app. Riveting. Let's pretend we want to schedule a notification for a manager to review their subordinates each afternoon. Obviously this isn't an ideal UX but it'll do for an example.
+
+```swift
+let employees = employeeDatabase.getMySubordinates()
+
+await employees.forEach { employee in
+
+    notificationService
+        .requestNotification(.init(
+            identifier: .init(),
+            date: thisAfternoon,
+            categoryIdentifier: "EmployeePerformanceReview",
+            title: "\(employee.name)",
+            subtitle: "Performance Review",
+            body: "Supply a rating or write a note.",
+            data: EmployeePerformanceReviewRequestData(employeeName: employee.name),
+            actions: [
+                .button(
+                    identifier: PerformanceRatingActionIdentifier(rating: "Good"),
+                    title: "Good",
+                    icon: "hand.thumbsup.fill",
+                    requiresForeground: false),
+                .button(
+                    identifier: PerformanceRatingActionIdentifier(rating: "Bad"),
+                    title: "Bad",,
+                    icon: "hand.thumbsdown.fill",
+                    requiresForeground: false),
+                .userInput(
+                    identifier: WrittenNoteActionIdentifier(),
+                    title: "Write a note",
+                    icon: "pencil.line",
+                    buttonTitle: "Done",
+                    placeholder: "Write a note for HR")
+            ]))
+
+}
 ```
 
 ---
