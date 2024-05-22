@@ -1,6 +1,6 @@
 # Lambdaspire - Swift Notifications
 
-Strongly-typed User Notifications for iOS, iPadOS, and macOS. Action Identifier Strings (`actionIdentifier`) and User Info Dictionaries (`userInfo`) are replaced with `Codable` structs to provide a .
+Strongly-typed User Notifications for iOS, iPadOS, and macOS. Action Identifier Strings (`actionIdentifier`) and User Info Dictionaries (`userInfo`) are replaced with `Codable` structs to provide a slightly less painful experience when handling notification responses. Fewer switch statements. Less magic string parsing. More refactor-friendly.
 
 Built for internal use @Lambdaspire, so might not be fit for your purposes, but do as you wish with this package and/or the code.
 
