@@ -174,7 +174,7 @@ serviceLocator.register(EmployeeDatabase())
 Example 2: If you want to resolve the `NotificationService` itself as a dependency, you could register it in the same `DependencyResolver` that it references after initialising it. You might do this if you want a notification handler to schedule another notification.
 
 ```swift
-Example 2:
+// Example 2:
 
 let notificationService: NotificationService = .init(resolver: serviceLocator, logger: PrintLogger())
 
