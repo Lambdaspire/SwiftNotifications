@@ -15,9 +15,17 @@ let package = Package(
             name: "LambdaspireSwiftNotifications",
             targets: ["LambdaspireSwiftNotifications"]),
     ],
+    dependencies: [
+        .package(
+            url: "https://github.com/Lambdaspire/Lambdaspire-Swift-Abstractions",
+            from: .init(stringLiteral: "0.0.1"))
+    ],
     targets: [
         .target(
-            name: "LambdaspireSwiftNotifications"),
+            name: "LambdaspireSwiftNotifications",
+            dependencies: [
+                .product(name: "LambdaspireAbstractions", package: "Lambdaspire-Swift-Abstractions")
+            ]),
         .testTarget(
             name: "LambdaspireSwiftNotificationsTests",
             dependencies: ["LambdaspireSwiftNotifications"]),

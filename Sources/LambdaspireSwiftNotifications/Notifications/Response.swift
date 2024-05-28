@@ -1,4 +1,5 @@
 
+import LambdaspireAbstractions
 import UserNotifications
 
 /// Defines the contract for custom NotificationActionIdentifier types.
