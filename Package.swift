@@ -18,7 +18,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/Lambdaspire/Lambdaspire-Swift-Abstractions",
-            from: .init(stringLiteral: "0.0.1"))
+            from: "1.0.0")
     ],
     targets: [
         .target(
