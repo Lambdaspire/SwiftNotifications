@@ -14,12 +14,17 @@ Otherwise, (hopefully exhaustive) steps are outlined below.
 
 ### 1. Create the Notification Service.
 
-`NotificationService` is the main driver. It requires a `DependencyResolver` and a `Logger` (there are default implementations of both available).
+`NotificationService` is the main driver. It requires a `DependencyResolver` and a `Logger`.
 
 ```swift
-let serviceLocator: BasicServiceLocator = .init()
+let serviceLocator: ServiceLocator = .init()
 let notificationService: NotificationService = .init(resolver: serviceLocator, logger: PrintLogger())
 ```
+
+#### Implementations of `DependencyResolver` and `Logger`
+
+- See [Lambdaspire-Swift-DependencyResolution](https://github.com/Lambdaspire/Lambdaspire-Swift-DependencyResolution) for a `DependencyResolver` implementation or implement your own.
+- See [Lambdaspire-Swift-Logging](https://github.com/Lambdaspire/Lambdaspire-Swift-Logging) for a `Logger` implementation or implement your own.
 
 ### 2. Register Notification Handlers and Associated Types.
 
@@ -209,7 +214,7 @@ struct StronglyTypedNotificationsExampleApp: App {
     
     @StateObject private var appState: AppState = .init()
     
-    private let serviceLocator: BasicServiceLocator = .default
+    private let serviceLocator: ServiceLocator = .default
     
     var body: some Scene {
         WindowGroup {
@@ -224,7 +229,7 @@ class AppState : ObservableObject {
 
 extension View {
     
-    func with(_ appState: AppState, _ serviceLocator: BasicServiceLocator) -> some View {
+    func with(_ appState: AppState, _ serviceLocator: ServiceLocator) -> some View {
     
         serviceLocator.register(appState)
         
@@ -235,5 +240,5 @@ extension View {
 }
 
 // So we can pass it along with @EnvironmentObject
-extension BasicServiceLocator : ObservableObject { }
+extension ServiceLocator : ObservableObject { }
 ```
