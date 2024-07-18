@@ -179,7 +179,7 @@ That's all.
 
 ### Push Notifications App Entitlement
 
-Shouldn't be s surprise that you'll need to include the **Push Notifications** entitlement for your app target.
+Shouldn't be a surprise that you'll need to include the **Push Notifications** entitlement for your app target.
 
 ### Registering Dependencies
 
