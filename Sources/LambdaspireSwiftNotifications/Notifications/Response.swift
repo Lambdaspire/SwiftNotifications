@@ -12,7 +12,8 @@ public protocol NotificationRequestData : Codable { }
 public typealias UserInput = String?
 
 /// Defines the contract for custom NotificationActionHandler 
-public protocol NotificationActionHandler {
+public protocol NotificationActionHandler : Resolvable {
+    
     associatedtype NotificationActionIdentifierType : NotificationActionIdentifier
     associatedtype NotificationRequestDataType : NotificationRequestData
     
@@ -20,12 +21,10 @@ public protocol NotificationActionHandler {
     /// - Parameter actionIdentifier: The strongly typed action identifier and associated data.
     /// - Parameter requestData: The strongly typed userInfo data associated with the notification.
     /// - Parameter userInput: Optional text input from the notification response.
-    /// - Parameter resolver: A dependency resolver that allows the handler to access application-specific context.
-    static func handle(
+    func handle(
         _ actionIdentifier: NotificationActionIdentifierType,
         _ requestData: NotificationRequestDataType,
-        _ userInput: UserInput,
-        _ resolver: DependencyResolver) async -> Void
+        _ userInput: UserInput) async -> Void
 }
 
 // Type-safe identifiers for system defaults.
