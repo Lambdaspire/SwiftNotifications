@@ -14,17 +14,17 @@ Otherwise, (hopefully exhaustive) steps are outlined below.
 
 ### 1. Create the Notification Service.
 
-`NotificationService` is the main driver. It requires a `DependencyResolver` and a `Logger`.
+`NotificationService` is the main driver. It requires a `DependencyResolutionScope`.
 
 ```swift
-let serviceLocator: ServiceLocator = .init()
-let notificationService: NotificationService = .init(resolver: serviceLocator, logger: PrintLogger())
+let builder: ContainerBuilder = .init()
+builder.singleton { scope in NotificationService(scope: scope) }
+let container = builder.build()
+
+let notificationService: NotificationService = container.resolve()
 ```
 
-#### Implementations of `DependencyResolver` and `Logger`
-
-- See [Lambdaspire-Swift-DependencyResolution](https://github.com/Lambdaspire/Lambdaspire-Swift-DependencyResolution) for a `DependencyResolver` implementation or implement your own.
-- See [Lambdaspire-Swift-Logging](https://github.com/Lambdaspire/Lambdaspire-Swift-Logging) for a `Logger` implementation or implement your own.
+We're using `Container` from [Lambdaspire-Swift-DependencyResolution](https://github.com/Lambdaspire/Lambdaspire-Swift-DependencyResolution).
 
 ### 2. Register Notification Handlers and Associated Types.
 
@@ -37,18 +37,19 @@ struct EmployeePerformanceReviewRequestData : NotificationRequestData {
     var employeeName: String
 }
 
-struct DefaultHandler : NotificationActionHandler {
-    static func handle(
+@Resolvable
+class DefaultHandler : NotificationActionHandler {
+
+    private let appState: AppState
+
+    func handle(
         _ actionIdentifierData: DefaultNotificationActionIdentifier,
         _ requestData: EmployeePerformanceReviewRequestData,
-        _ userInput: UserInput,
-        _ resolver: DependencyResolver) async {
+        _ userInput: UserInput) async {
 
             // The default action brings the app into the foreground,
             // so show the performance review UI for the relevant employee.
-            await resolver
-                .resolve(AppState.self)!
-                .reviewEmployeePerformance(requestData.employeeName)
+            await appState.reviewEmployeePerformance(requestData.employeeName)
         }
 }
 
@@ -56,18 +57,19 @@ struct PerformanceRatingActionIdentifier : NotificationActionIdentifier {
     var rating: String
 }
 
-struct PerformanceRatingHandler : NotificationActionHandler {
-    static func handle(
+@Resolvable
+class PerformanceRatingHandler : NotificationActionHandler {
+
+    private let employeeDatabase: EmployeeDatabase
+
+    func handle(
         _ actionIdentifierData: PerformanceRatingActionIdentifier,
         _ requestData: EmployeePerformanceReviewRequestData,
-        _ userInput: UserInput,
-        _ resolver: DependencyResolver) async {
+        _ userInput: UserInput) async {
 
             // The user has supplied a rating directly from the notification,
             // so update the database accordingly.
-            await resolver
-                .resolve(EmployeeDatabase.self)!
-                .saveReview(employeeName: requestData.employeeName, rating: actionIdentifierData.rating)
+            await employeeDatabase.saveReview(employeeName: requestData.employeeName, rating: actionIdentifierData.rating)
         }
 }
 
@@ -75,20 +77,21 @@ struct WrittenNoteActionIdentifier : NotificationActionIdentifier {
     // Empty - use UserInput instead.
 }
 
-struct WrittenNoteHandler : NotificationActionHandler {
-    static func handle(
+@Resolvable
+class WrittenNoteHandler : NotificationActionHandler {
+
+    private let humanResources: HumanResources
+
+    func handle(
         _ actionIdentifierData: WrittenNoteActionIdentifier,
         _ requestData: EmployeePerformanceReviewRequestData,
-        _ userInput: UserInput,
-        _ resolver: DependencyResolver) async {
+        _ userInput: UserInput) async {
 
             guard let userInput else { return }
 
             // The user has written a note rather than supplying a rating,
             // so notify HR post-haste.
-            await resolver
-                .resolve(HumanResources.self)!
-                .notify("Regarding \(requestData.employeeName): \(userInput)")
+            await humanResources.notify("Regarding \(requestData.employeeName): \(userInput)")
         }
 }
 ```
@@ -183,62 +186,4 @@ Shouldn't be a surprise that you'll need to include the **Push Notifications** e
 
 ### Registering Dependencies
 
-The `DependencyResolver` will be passed to your handlers, so you'll want to register whatever dependencies will be required for them to function (ideally, as early as possible in the app lifecycle).
-
-Example 1: You might want to register some singletons for database access and external services. You could do this wherever you declare your resolver and service.
-
-```swift
-// Example 1:
-
-serviceLocator.register(HumanResources())
-serviceLocator.register(EmployeeDatabase())
-```
-
-Example 2: If you want to resolve the `NotificationService` itself as a dependency, you could register it in the same `DependencyResolver` that it references after initialising it. You might do this if you want a notification handler to schedule another notification.
-
-```swift
-// Example 2:
-
-let notificationService: NotificationService = .init(resolver: serviceLocator, logger: PrintLogger())
-
-serviceLocator.register(notificationService)
-```
-
-Example 3: You might want to register some root `AppState` environment object so that the handlers can manipulate state to update the UI when the app is brought ot the foreground by a notification action.
-
-```swift
-// Example 3:
-
-@main
-struct StronglyTypedNotificationsExampleApp: App {
-    
-    @StateObject private var appState: AppState = .init()
-    
-    private let serviceLocator: ServiceLocator = .default
-    
-    var body: some Scene {
-        WindowGroup {
-            ContentView().with(appState, serviceLocator)
-        }
-    }
-}
-
-class AppState : ObservableObject {
-    // You do you.
-}
-
-extension View {
-    
-    func with(_ appState: AppState, _ serviceLocator: ServiceLocator) -> some View {
-    
-        serviceLocator.register(appState)
-        
-        return self
-            .environmentObject(appState)
-            .environmentObject(serviceLocator)
-    }
-}
-
-// So we can pass it along with @EnvironmentObject
-extension ServiceLocator : ObservableObject { }
-```
+Handlers are resolved via the `Resolvable` protocol. Use the `@Resolvable` macro from the [DependencyResolution package](https://github.com/Lambdaspire/Lambdaspire-Swift-DependencyResolution) to simplify this. See that package's readme for more details.
